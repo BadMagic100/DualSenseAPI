@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DualSenseAPI", "DualSenseAPI\DualSenseAPI.csproj", "{010C3DB7-BF3B-4480-87C7-C0C72A54CAC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "TestDriver\Demo.csproj", "{9FA99037-5652-44AE-AFAB-DE98FB5C7DE3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{010C3DB7-BF3B-4480-87C7-C0C72A54CAC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{010C3DB7-BF3B-4480-87C7-C0C72A54CAC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{010C3DB7-BF3B-4480-87C7-C0C72A54CAC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{010C3DB7-BF3B-4480-87C7-C0C72A54CAC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FA99037-5652-44AE-AFAB-DE98FB5C7DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FA99037-5652-44AE-AFAB-DE98FB5C7DE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FA99037-5652-44AE-AFAB-DE98FB5C7DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FA99037-5652-44AE-AFAB-DE98FB5C7DE3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E21F4229-285A-483C-92D4-681FD323F71E}
+	EndGlobalSection
+EndGlobal
