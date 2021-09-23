@@ -32,27 +32,12 @@ namespace DualSenseAPI
 
         public IoMode IoMode { get; private set; }
 
-        // should input state go here? seems kinda whack that output state is the controller instance, but the input state is only available as a return state
-
         public float JoystickDeadZone { get; set; } = 0;
 
-        public float LeftRumble { get; set; } = 0;
+        // how do we deal with the (im)mutability of this?
+        public DualSenseOutputState OutputState { get; set; } = new DualSenseOutputState();
 
-        public float RightRumble { get; set; } = 0;
-
-        public MicLed MicLed { get; set; } = MicLed.Off;
-
-        public PlayerLed PlayerLed { get; set; } = PlayerLed.None;
-
-        public PlayerLedBrightness PlayerLedBrightness { get; set; } = PlayerLedBrightness.High;
-
-        public LightbarBehavior LightbarBehavior { get; set; } = LightbarBehavior.PulseBlue;
-
-        public LightbarColor LightbarColor { get; set; } = new LightbarColor(0, 0, 1);
-
-        public TriggerEffect R2Effect { get; set; } = TriggerEffect.Default;
-
-        public TriggerEffect L2Effect { get; set; } = TriggerEffect.Default;
+        public DualSenseInputState InputState { get; private set; } = null;
 
         private DualSense(IDevice underlyingDevice, int? readBufferSize, int? writeBufferSize)
         {
@@ -87,7 +72,7 @@ namespace DualSenseAPI
             }
         }
 
-        private async Task<DualSenseState> ReadWriteOnceAsync()
+        private async Task<DualSenseInputState> ReadWriteOnceAsync()
         {
             TransferResult result = await underlyingDevice.WriteAndReadAsync(GetOutputDataBytes());
             if (result.BytesTransferred == readBufferSize)
@@ -99,7 +84,7 @@ namespace DualSenseAPI
                     0x31 => 2,
                     _ => 0
                 };
-                return new DualSenseState(result.Data.Skip(offset).ToArray(), IoMode, JoystickDeadZone);
+                return new DualSenseInputState(result.Data.Skip(offset).ToArray(), IoMode, JoystickDeadZone);
             }
             else
             {
@@ -107,19 +92,22 @@ namespace DualSenseAPI
             }
         }
 
-        public DualSenseState ReadWriteOnce()
+        public DualSenseInputState ReadWriteOnce()
         {
-            Task<DualSenseState> stateTask = ReadWriteOnceAsync();
+            Task<DualSenseInputState> stateTask = ReadWriteOnceAsync();
             stateTask.Wait();
-            return stateTask.Result;
+            InputState = stateTask.Result;
+            return InputState;
         }
 
-        public void BeginPolling(uint pollingIntervalMs, Action<DualSenseState> onState)
+        public void BeginPolling(uint pollingIntervalMs, Action<DualSenseInputState> onState)
         {
-            IObservable<DualSenseState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
+            IObservable<DualSenseInputState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
             // todo - figure how we can leverage DistinctUntilChanged (or similar) so we can do filtered eventing (e.g. button pressed only)
 
+            // how to allow return values on these subscriptions? ideally we'd like onState to be a pure function that takes the current IO states,
+            // and returns a new output state without doing any modification by reference
             pollerSubscription = stateObserver.Subscribe(onState);
         }
 
@@ -129,88 +117,20 @@ namespace DualSenseAPI
             pollerSubscription = null;
         }
 
-        private byte[] BuildTriggerReport(TriggerEffect props)
-        {
-            byte[] bytes = new byte[10];
-            bytes[0] = (byte)props.InternalEffect;
-            switch (props.InternalEffect)
-            {
-                case TriggerEffectType.ContinuousResistance:
-                    bytes[1] = props.InternalStartPosition.UnsignedToByte();
-                    bytes[2] = props.InternalStartForce.UnsignedToByte();
-                    break;
-                case TriggerEffectType.SectionResistance:
-                    bytes[1] = props.InternalStartPosition.UnsignedToByte();
-                    bytes[2] = props.InternalEndPosition.UnsignedToByte();
-                    break;
-                case TriggerEffectType.Vibrate:
-                    bytes[1] = 0xFF;
-                    if (props.InternalKeepEffect) 
-                    {
-                        bytes[2] = 0x02;
-                    }
-                    bytes[4] = props.InternalStartForce.UnsignedToByte();
-                    bytes[5] = props.InternalMiddleForce.UnsignedToByte();
-                    bytes[6] = props.InternalEndForce.UnsignedToByte();
-                    bytes[9] = props.InternalVibrationFrequency;
-                    break;
-                default:
-                    // leave other bytes as 0. this handles Default/No-resist and calibration modes.
-                    break;
-            }
-            return bytes;
-        }
-
-        private byte[] BuildHidOutputBuffer()
-        {
-            byte[] baseBuf = new byte[47];
-
-            // Feature mask
-            baseBuf[0x00] = 0xFF;
-            baseBuf[0x01] = 0xF7;
-
-            // L/R rumble
-            baseBuf[0x02] = RightRumble.UnsignedToByte();
-            baseBuf[0x03] = LeftRumble.UnsignedToByte();
-
-            // mic led
-            baseBuf[0x08] = (byte)MicLed;
-
-            // 0x01 to allow customization, 0x02 to enable uninterruptable blue pulse
-            baseBuf[0x26] = 0x03;
-            // 0x01 to do a slow-fade to blue (uninterruptable) if 0x26 & 0x01 is set.
-            // 0x02 to allow a slow-fade-out and set to configured color
-            baseBuf[0x29] = (byte)LightbarBehavior;
-            baseBuf[0x2A] = (byte)PlayerLedBrightness;
-            baseBuf[0x2B] = (byte)(0x20 | (byte)PlayerLed);
-
-            //lightbar
-            baseBuf[0x2C] = LightbarColor.R.UnsignedToByte();
-            baseBuf[0x2D] = LightbarColor.G.UnsignedToByte();
-            baseBuf[0x2E] = LightbarColor.B.UnsignedToByte();
-
-            //adaptive triggers
-            byte[] r2Bytes = BuildTriggerReport(R2Effect);
-            Array.Copy(r2Bytes, 0, baseBuf, 0x0A, 10);
-            byte[] l2Bytes = BuildTriggerReport(L2Effect);
-            Array.Copy(l2Bytes, 0, baseBuf, 0x15, 10);
-
-            return baseBuf;
-        }
-
         private byte[] GetOutputDataBytes()
         {
             byte[] bytes = new byte[writeBufferSize ?? 0];
+            byte[] hidBuffer = OutputState.BuildHidOutputBuffer();
             if (IoMode == IoMode.USB)
             {
                 bytes[0] = 0x02;
-                Array.Copy(BuildHidOutputBuffer(), 0, bytes, 1, 47);
+                Array.Copy(hidBuffer, 0, bytes, 1, 47);
             }
             else if (IoMode == IoMode.Bluetooth)
             {
                 bytes[0] = 0x31;
                 bytes[1] = 0x02;
-                Array.Copy(BuildHidOutputBuffer(), 0, bytes, 2, 47);
+                Array.Copy(hidBuffer, 0, bytes, 2, 47);
                 // make a 32 bit checksum of the first 74 bytes and add it at the end
                 uint crcChecksum = CRC32Utils.ComputeCRC32(bytes, 74);
                 byte[] checksumBytes = BitConverter.GetBytes(crcChecksum);

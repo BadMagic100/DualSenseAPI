@@ -7,13 +7,13 @@ using DualSenseAPI.Util;
 
 namespace DualSenseAPI
 {
-    public class DualSenseState
+    public class DualSenseInputState
     {
         private readonly byte[] data;
         private readonly IoMode inputMode;
         private readonly float deadZone;
 
-        internal DualSenseState(byte[] data, IoMode inputMode, float deadZone)
+        internal DualSenseInputState(byte[] data, IoMode inputMode, float deadZone)
         {
             this.data = data;
             this.inputMode = inputMode;

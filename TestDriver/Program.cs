@@ -11,6 +11,24 @@ namespace Demo
 {
     class Program
     {
+        static T Choose<T>(T[] ts, string prompt)
+        {
+            for (int i = 0; i < ts.Length; i++)
+            {
+                Console.WriteLine($"{i}: {ts[i]}");
+            }
+            Console.Write(prompt);
+
+            int idx;
+            do
+            {
+                bool parseSuccess = int.TryParse(Console.ReadLine(), out idx);
+                if (!parseSuccess) idx = -1;
+            } while (idx < 0 || idx >= ts.Length);
+
+            return ts[idx];
+        }
+
         static DualSense ChooseController()
         {
             DualSense[] available = DualSense.EnumerateControllers().ToArray();
@@ -21,36 +39,33 @@ namespace Demo
                 available = DualSense.EnumerateControllers().ToArray();
             }
 
-            for (int i = 0; i < available.Length; i++)
-            {
-                Console.WriteLine($"{i}: {available[i]}");
-            }
-            Console.Write("Found some DualSenses, select one: ");
-            int idx;
-            do
-            {
-                bool parseSuccess = int.TryParse(Console.ReadLine(), out idx);
-                if (!parseSuccess) idx = -1;
-            } while (idx < 0 || idx >= available.Length);
-
-            return available[idx];
+            return Choose(available, "Found some DualSenses, select one: ");
         }
 
-        static void Main2(string[] args)
+        static void Main(string[] args)
         {
             DualSense ds = ChooseController();
+            Choose(new Action<DualSense>[] { MainAsyncPolling, MainSyncBlocking }.Select(x => x.GetMethodInfo()).ToArray(),
+                "Choose a demo runner: ").Invoke(null, new object[] { ds });
+        }
+
+        static void MainSyncBlocking(DualSense ds)
+        {
 
             ds.Connect();
             bool pMicBtnState = false;
             bool pR1State = false;
             bool pL1State = false;
 
-            ds.LightbarBehavior = LightbarBehavior.CustomColor;
             ds.JoystickDeadZone = 0.1f;
-            ds.R2Effect = new TriggerEffect.Vibrate(20, 1f, 1f, 1f);
-            ds.L2Effect = new TriggerEffect.Section(0.0f, 0.5f);
+            ds.OutputState = new DualSenseOutputState()
+            {
+                LightbarBehavior = LightbarBehavior.CustomColor,
+                R2Effect = new TriggerEffect.Vibrate(20, 1, 1, 1),
+                L2Effect = new TriggerEffect.Section(0, 0.5f)
+            };
             int wheelPos = 0;
-            DualSenseState dss;
+            DualSenseInputState dss;
             do
             {
                 Console.Clear();
@@ -68,12 +83,12 @@ namespace Demo
 
                 ListPressedButtons(dss);
 
-                ds.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
-                ds.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
+                ds.OutputState.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
+                ds.OutputState.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
                 if (!pMicBtnState && dss.MicButton)
                 {
-                    ds.MicLed = ds.MicLed switch
+                    ds.OutputState.MicLed = ds.OutputState.MicLed switch
                     {
                         MicLed.Off => MicLed.Pulse,
                         MicLed.Pulse => MicLed.On,
@@ -84,7 +99,7 @@ namespace Demo
 
                 if (!pR1State && dss.R1Button)
                 {
-                    ds.PlayerLed = ds.PlayerLed switch
+                    ds.OutputState.PlayerLed = ds.OutputState.PlayerLed switch
                     {
                         PlayerLed.None => PlayerLed.Player1,
                         PlayerLed.Player1 => PlayerLed.Player2,
@@ -98,7 +113,7 @@ namespace Demo
 
                 if (!pL1State && dss.L1Button)
                 {
-                    ds.PlayerLedBrightness = ds.PlayerLedBrightness switch
+                    ds.OutputState.PlayerLedBrightness = ds.OutputState.PlayerLedBrightness switch
                     {
                         PlayerLedBrightness.High => PlayerLedBrightness.Low,
                         PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
@@ -107,32 +122,32 @@ namespace Demo
                 }
                 pL1State = dss.L1Button;
 
-                ds.LightbarColor = ColorWheel(wheelPos);
+                ds.OutputState.LightbarColor = ColorWheel(wheelPos);
                 wheelPos = (wheelPos + 5) % 384;
 
                 Thread.Sleep(20);
             } while (!dss.LogoButton);
-            ds.LightbarBehavior = LightbarBehavior.PulseBlue;
-            ds.PlayerLed = PlayerLed.None;
-            ds.R2Effect = TriggerEffect.Default;
-            ds.L2Effect = TriggerEffect.Default;
+            ds.OutputState.LightbarBehavior = LightbarBehavior.PulseBlue;
+            ds.OutputState.PlayerLed = PlayerLed.None;
+            ds.OutputState.R2Effect = TriggerEffect.Default;
+            ds.OutputState.L2Effect = TriggerEffect.Default;
             ds.ReadWriteOnce();
             ds.Release();
         }
 
-        static void Main(string[] args)
+        static void MainAsyncPolling(DualSense ds)
         {
-            DualSense ds = ChooseController();
-
             ds.Connect();
             bool pMicBtnState = false;
             bool pR1State = false;
             bool pL1State = false;
 
-            ds.LightbarBehavior = LightbarBehavior.CustomColor;
             ds.JoystickDeadZone = 0.1f;
-            ds.R2Effect = new TriggerEffect.Vibrate(10, 0.5f, 1, 1);
-            ds.L2Effect = new TriggerEffect.Section(0.0f, 0.5f);
+            ds.OutputState = new DualSenseOutputState() {
+                LightbarBehavior = LightbarBehavior.CustomColor,
+                R2Effect = new TriggerEffect.Vibrate(20, 1, 1, 1),
+                L2Effect = new TriggerEffect.Section(0.0f, 0.5f)
+            };
             int wheelPos = 0;
             // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
             // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
@@ -151,12 +166,12 @@ namespace Demo
 
                 ListPressedButtons(dss);
 
-                ds.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
-                ds.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
+                ds.OutputState.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
+                ds.OutputState.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
                 if (!pMicBtnState && dss.MicButton)
                 {
-                    ds.MicLed = ds.MicLed switch
+                    ds.OutputState.MicLed = ds.OutputState.MicLed switch
                     {
                         MicLed.Off => MicLed.Pulse,
                         MicLed.Pulse => MicLed.On,
@@ -167,7 +182,7 @@ namespace Demo
 
                 if (!pR1State && dss.R1Button)
                 {
-                    ds.PlayerLed = ds.PlayerLed switch
+                    ds.OutputState.PlayerLed = ds.OutputState.PlayerLed switch
                     {
                         PlayerLed.None => PlayerLed.Player1,
                         PlayerLed.Player1 => PlayerLed.Player2,
@@ -181,7 +196,7 @@ namespace Demo
 
                 if (!pL1State && dss.L1Button)
                 {
-                    ds.PlayerLedBrightness = ds.PlayerLedBrightness switch
+                    ds.OutputState.PlayerLedBrightness = ds.OutputState.PlayerLedBrightness switch
                     {
                         PlayerLedBrightness.High => PlayerLedBrightness.Low,
                         PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
@@ -190,17 +205,17 @@ namespace Demo
                 }
                 pL1State = dss.L1Button;
 
-                ds.LightbarColor = ColorWheel(wheelPos);
+                ds.OutputState.LightbarColor = ColorWheel(wheelPos);
                 wheelPos = (wheelPos + 5) % 384;
 
             });
             //note that readkey is blocking, which means we know this input method is truly async
             Console.ReadKey(true);
-            ds.LightbarBehavior = LightbarBehavior.PulseBlue;
-            ds.PlayerLed = PlayerLed.None;
-            ds.R2Effect = TriggerEffect.Default;
-            ds.L2Effect = TriggerEffect.Default;
-            ds.MicLed = MicLed.Off;
+            ds.OutputState.LightbarBehavior = LightbarBehavior.PulseBlue;
+            ds.OutputState.PlayerLed = PlayerLed.None;
+            ds.OutputState.R2Effect = TriggerEffect.Default;
+            ds.OutputState.L2Effect = TriggerEffect.Default;
+            ds.OutputState.MicLed = MicLed.Off;
             ds.EndPolling();
             ds.ReadWriteOnce();
             ds.Release();
@@ -230,7 +245,7 @@ namespace Demo
             return new LightbarColor(r / 255f, g / 255f, b / 255f);
         }
 
-        static void ListPressedButtons(DualSenseState dss)
+        static void ListPressedButtons(DualSenseInputState dss)
         {
             IEnumerable<string> pressedButtons = dss.GetType().GetProperties()
                 .Where(p => p.Name.EndsWith("Button") && p.PropertyType == typeof(bool))
