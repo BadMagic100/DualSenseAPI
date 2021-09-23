@@ -25,10 +25,14 @@ namespace DualSenseAPI
             }
         }
 
+        // IO state
         private readonly IDevice underlyingDevice;
-        private IDisposable pollerSubscription;
         private readonly int? readBufferSize;
         private readonly int? writeBufferSize;
+
+        // async polling
+        private IDisposable pollerSubscription;
+        private Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState> onState;
 
         public IoMode IoMode { get; private set; }
 
@@ -100,21 +104,30 @@ namespace DualSenseAPI
             return InputState;
         }
 
-        public void BeginPolling(uint pollingIntervalMs, Action<DualSenseInputState> onState)
+        private void ProcessState(DualSenseInputState inputState)
         {
+            // pass a copy so we're not modifying the current state by reference. we'll reassign when done.
+            OutputState = onState(inputState, new DualSenseOutputState(OutputState));
+        }
+
+        public void BeginPolling(uint pollingIntervalMs, Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState> onState)
+        {
+            this.onState = onState;
+
             IObservable<DualSenseInputState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
             // todo - figure how we can leverage DistinctUntilChanged (or similar) so we can do filtered eventing (e.g. button pressed only)
 
             // how to allow return values on these subscriptions? ideally we'd like onState to be a pure function that takes the current IO states,
             // and returns a new output state without doing any modification by reference
-            pollerSubscription = stateObserver.Subscribe(onState);
+            pollerSubscription = stateObserver.Subscribe(ProcessState);
         }
 
         public void EndPolling()
         {
             pollerSubscription.Dispose();
             pollerSubscription = null;
+            onState = null;
         }
 
         private byte[] GetOutputDataBytes()

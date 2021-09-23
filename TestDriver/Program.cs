@@ -151,7 +151,7 @@ namespace Demo
             int wheelPos = 0;
             // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
             // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
-            ds.BeginPolling(100, dss => { 
+            ds.BeginPolling(100, (dss, dso) => { 
                 Console.Clear();
 
                 Console.WriteLine($"LS: ({dss.LeftAnalogStick.X:F2}, {dss.LeftAnalogStick.Y:F2})");
@@ -166,12 +166,12 @@ namespace Demo
 
                 ListPressedButtons(dss);
 
-                ds.OutputState.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
-                ds.OutputState.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
+                dso.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
+                dso.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
                 if (!pMicBtnState && dss.MicButton)
                 {
-                    ds.OutputState.MicLed = ds.OutputState.MicLed switch
+                    dso.MicLed = dso.MicLed switch
                     {
                         MicLed.Off => MicLed.Pulse,
                         MicLed.Pulse => MicLed.On,
@@ -182,7 +182,7 @@ namespace Demo
 
                 if (!pR1State && dss.R1Button)
                 {
-                    ds.OutputState.PlayerLed = ds.OutputState.PlayerLed switch
+                    dso.PlayerLed = dso.PlayerLed switch
                     {
                         PlayerLed.None => PlayerLed.Player1,
                         PlayerLed.Player1 => PlayerLed.Player2,
@@ -196,7 +196,7 @@ namespace Demo
 
                 if (!pL1State && dss.L1Button)
                 {
-                    ds.OutputState.PlayerLedBrightness = ds.OutputState.PlayerLedBrightness switch
+                    dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
                     {
                         PlayerLedBrightness.High => PlayerLedBrightness.Low,
                         PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
@@ -205,9 +205,10 @@ namespace Demo
                 }
                 pL1State = dss.L1Button;
 
-                ds.OutputState.LightbarColor = ColorWheel(wheelPos);
+                dso.LightbarColor = ColorWheel(wheelPos);
                 wheelPos = (wheelPos + 5) % 384;
 
+                return dso;
             });
             //note that readkey is blocking, which means we know this input method is truly async
             Console.ReadKey(true);

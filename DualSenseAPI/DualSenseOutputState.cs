@@ -27,6 +27,24 @@ namespace DualSenseAPI
 
         public TriggerEffect L2Effect { get; set; } = TriggerEffect.Default;
 
+        // default no-arg constructor
+        public DualSenseOutputState() { }
+
+        internal DualSenseOutputState(DualSenseOutputState original)
+        {
+            LeftRumble = original.LeftRumble;
+            RightRumble = original.RightRumble;
+            MicLed = original.MicLed;
+            PlayerLed = original.PlayerLed;
+            PlayerLedBrightness = original.PlayerLedBrightness;
+            LightbarBehavior = original.LightbarBehavior;
+            // lightbar color is a struct, which is a value type so this assignment is fine.
+            LightbarColor = original.LightbarColor;
+            // trigger effects all have no setters, making them immutables. this reassignment is fine
+            R2Effect = original.R2Effect;
+            L2Effect = original.L2Effect;
+        }
+
         private byte[] BuildTriggerReport(TriggerEffect props)
         {
             byte[] bytes = new byte[10];
