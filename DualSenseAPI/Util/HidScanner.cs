@@ -11,9 +11,22 @@ namespace DualSenseAPI.Util
 {
     internal class HidScanner
     {
-        private IDeviceFactory hidFactory;
+        private readonly IDeviceFactory hidFactory;
 
-        public HidScanner()
+        private static HidScanner? _instance = null;
+        internal static HidScanner Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new HidScanner();
+                }
+                return _instance;
+            }
+        }
+
+        private HidScanner()
         {
             hidFactory = new FilterDeviceDefinition(1356, 3302, label: "DualSense").CreateWindowsHidDeviceFactory();
         }

@@ -250,7 +250,7 @@ namespace Demo
         {
             IEnumerable<string> pressedButtons = dss.GetType().GetProperties()
                 .Where(p => p.Name.EndsWith("Button") && p.PropertyType == typeof(bool))
-                .Where(p => (bool)p.GetValue(dss))
+                .Where(p => (bool)p.GetValue(dss)!)
                 .Select(p => p.Name.Replace("Button", ""));
             string joined = string.Join(", ", pressedButtons);
             Console.WriteLine($"Buttons: {joined}");

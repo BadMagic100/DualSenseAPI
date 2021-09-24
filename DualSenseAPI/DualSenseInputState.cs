@@ -12,7 +12,6 @@ namespace DualSenseAPI
         private readonly byte[] data;
         private readonly IoMode inputMode;
         private readonly float deadZone;
-
         internal DualSenseInputState(byte[] data, IoMode inputMode, float deadZone)
         {
             this.data = data;

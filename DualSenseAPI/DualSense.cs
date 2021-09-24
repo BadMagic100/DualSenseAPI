@@ -12,27 +12,14 @@ namespace DualSenseAPI
 {
     public class DualSense
     {
-        private static HidScanner _hidScannerSingleton = null;
-        private static HidScanner HidScannerSingleton
-        {
-            get
-            {
-                if (_hidScannerSingleton == null)
-                {
-                    _hidScannerSingleton = new HidScanner();
-                }
-                return _hidScannerSingleton;
-            }
-        }
-
         // IO state
         private readonly IDevice underlyingDevice;
         private readonly int? readBufferSize;
         private readonly int? writeBufferSize;
 
         // async polling
-        private IDisposable pollerSubscription;
-        private Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState> onState;
+        private IDisposable? pollerSubscription;
+        private Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState>? onState;
 
         public IoMode IoMode { get; private set; }
 
@@ -41,7 +28,7 @@ namespace DualSenseAPI
         // how do we deal with the (im)mutability of this?
         public DualSenseOutputState OutputState { get; set; } = new DualSenseOutputState();
 
-        public DualSenseInputState InputState { get; private set; } = null;
+        public DualSenseInputState? InputState { get; private set; } = null;
 
         private DualSense(IDevice underlyingDevice, int? readBufferSize, int? writeBufferSize)
         {
@@ -106,8 +93,13 @@ namespace DualSenseAPI
 
         private void ProcessState(DualSenseInputState inputState)
         {
-            // pass a copy so we're not modifying the current state by reference. we'll reassign when done.
-            OutputState = onState(inputState, new DualSenseOutputState(OutputState));
+            if (onState == null)
+            {
+                throw new InvalidOperationException("Can't handle state without a handler");
+            }
+            // pass a copy so we're not modifying the current state by reference. we'll reassign when done. would be nice if these were properly immutable,
+            // but that causes problems almost everywhere we use it
+            OutputState = onState(inputState, new DualSenseOutputState(OutputState)) ?? OutputState;
         }
 
         public void BeginPolling(uint pollingIntervalMs, Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState> onState)
@@ -117,14 +109,17 @@ namespace DualSenseAPI
             IObservable<DualSenseInputState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
             // todo - figure how we can leverage DistinctUntilChanged (or similar) so we can do filtered eventing (e.g. button pressed only)
+            // how do we allow both to modify state in a smart way
 
-            // how to allow return values on these subscriptions? ideally we'd like onState to be a pure function that takes the current IO states,
-            // and returns a new output state without doing any modification by reference
             pollerSubscription = stateObserver.Subscribe(ProcessState);
         }
 
         public void EndPolling()
         {
+            if (pollerSubscription == null)
+            {
+                throw new InvalidOperationException("Can't end polling without starting polling first");
+            }
             pollerSubscription.Dispose();
             pollerSubscription = null;
             onState = null;
@@ -163,9 +158,9 @@ namespace DualSenseAPI
 
         public static IEnumerable<DualSense> EnumerateControllers()
         {
-            foreach (ConnectedDeviceDefinition deviceDefinition in HidScannerSingleton.ListDevices())
+            foreach (ConnectedDeviceDefinition deviceDefinition in HidScanner.Instance.ListDevices())
             {
-                IDevice device = HidScannerSingleton.GetConnectedDevice(deviceDefinition);
+                IDevice device = HidScanner.Instance.GetConnectedDevice(deviceDefinition);
                 yield return new DualSense(device, deviceDefinition.ReadBufferSize, deviceDefinition.WriteBufferSize);
             }
         }
