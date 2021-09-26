@@ -45,7 +45,7 @@ namespace DualSenseAPI
             L2Effect = original.L2Effect;
         }
 
-        private byte[] BuildTriggerReport(TriggerEffect props)
+        private static byte[] BuildTriggerReport(TriggerEffect props)
         {
             byte[] bytes = new byte[10];
             bytes[0] = (byte)props.InternalEffect;

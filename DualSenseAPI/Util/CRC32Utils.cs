@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DualSenseAPI.Util
 {
+    /// <summary>
+    /// Utilities for creating a CRC32 hash.
+    /// </summary>
     internal static class CRC32Utils
     {
         private static readonly uint[] ChecksumTableCRC32 =
@@ -46,7 +49,12 @@ namespace DualSenseAPI.Util
 
         private const uint HASH_SEED = 0xeada2d49;
 
-
+        /// <summary>
+        /// Computes a CRC32 hash of the provided data.
+        /// </summary>
+        /// <param name="byteData">The bytes to hash.</param>
+        /// <param name="size">The number of bytes to hash.</param>
+        /// <returns>The hash of the data.</returns>
         public static uint ComputeCRC32(byte[] byteData, int size)
         {
             if (size < 0)

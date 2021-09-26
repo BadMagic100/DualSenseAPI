@@ -19,14 +19,22 @@ namespace Demo
             }
             Console.Write(prompt);
 
-            int idx;
-            do
+            if (ts.Length == 1)
             {
-                bool parseSuccess = int.TryParse(Console.ReadLine(), out idx);
-                if (!parseSuccess) idx = -1;
-            } while (idx < 0 || idx >= ts.Length);
+                Console.WriteLine(0);
+                return ts[0];
+            }
+            else
+            {
+                int idx;
+                do
+                {
+                    bool parseSuccess = int.TryParse(Console.ReadLine(), out idx);
+                    if (!parseSuccess) idx = -1;
+                } while (idx < 0 || idx >= ts.Length);
 
-            return ts[idx];
+                return ts[idx];
+            }
         }
 
         static DualSense ChooseController()
@@ -52,7 +60,7 @@ namespace Demo
         static void MainSyncBlocking(DualSense ds)
         {
 
-            ds.Connect();
+            ds.Acquire();
             bool pMicBtnState = false;
             bool pR1State = false;
             bool pL1State = false;
@@ -137,7 +145,7 @@ namespace Demo
 
         static void MainAsyncPolling(DualSense ds)
         {
-            ds.Connect();
+            ds.Acquire();
             bool pMicBtnState = false;
             bool pR1State = false;
             bool pL1State = false;
