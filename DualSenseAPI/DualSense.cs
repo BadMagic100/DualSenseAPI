@@ -54,9 +54,9 @@ namespace DualSenseAPI
         /// <summary>
         /// Private constructor for <see cref="EnumerateControllers"/>.
         /// </summary>
-        /// <param name="underlyingDevice"></param>
-        /// <param name="readBufferSize"></param>
-        /// <param name="writeBufferSize"></param>
+        /// <param name="underlyingDevice">The underlying low-level device.</param>
+        /// <param name="readBufferSize">The device's declared read buffer size.</param>
+        /// <param name="writeBufferSize">The device's declared write buffer size.</param>
         private DualSense(IDevice underlyingDevice, int? readBufferSize, int? writeBufferSize)
         {
             this.underlyingDevice = underlyingDevice;
