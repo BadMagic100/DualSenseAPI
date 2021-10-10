@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DualSenseAPI
+﻿namespace DualSenseAPI
 {
     /// <summary>
     /// One of the DualSense's 2 touch points. The touchpad is 1920x1080, 0-indexed.

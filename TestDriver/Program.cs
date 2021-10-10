@@ -59,12 +59,44 @@ namespace Demo
 
         static void MainSyncBlocking(DualSense ds)
         {
-
             ds.Acquire();
-            bool pMicBtnState = false;
-            bool pR1State = false;
-            bool pL1State = false;
+            DualSenseInputState pState = ds.InputState;
+            int wheelPos = 0;
 
+            SetInitialProperties(ds);
+            DualSenseInputState dss;
+            do
+            {
+                dss = ds.ReadWriteOnce();
+                ProcessStateLogic(dss, ds.OutputState, ref pState, ref wheelPos);
+                
+                Thread.Sleep(20);
+            } while (!dss.LogoButton);
+            ResetToDefaultState(ds);
+            ds.Release();
+        }
+
+        static void MainAsyncPolling(DualSense ds)
+        {
+            ds.Acquire();
+            DualSenseInputState pState = ds.InputState;
+            int wheelPos = 0;
+
+            SetInitialProperties(ds);
+            // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
+            // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
+            ds.BeginPolling(100, (sender) => {
+                ProcessStateLogic(sender.InputState, sender.OutputState, ref pState, ref wheelPos);
+            });
+            //note that readkey is blocking, which means we know this input method is truly async
+            Console.ReadKey(true);
+            ds.EndPolling();
+            ResetToDefaultState(ds);
+            ds.Release();
+        }
+
+        static void SetInitialProperties(DualSense ds)
+        {
             ds.JoystickDeadZone = 0.1f;
             ds.OutputState = new DualSenseOutputState()
             {
@@ -72,162 +104,75 @@ namespace Demo
                 R2Effect = new TriggerEffect.Vibrate(20, 1, 1, 1),
                 L2Effect = new TriggerEffect.Section(0, 0.5f)
             };
-            int wheelPos = 0;
-            DualSenseInputState dss;
-            do
-            {
-                Console.Clear();
-                dss = ds.ReadWriteOnce();
-
-                Console.WriteLine($"LS: ({dss.LeftAnalogStick.X:F2}, {dss.LeftAnalogStick.Y:F2})");
-                Console.WriteLine($"RS: ({dss.RightAnalogStick.X:F2}, {dss.RightAnalogStick.Y:F2})");
-                Console.WriteLine($"Triggers: ({dss.L2:F2}, {dss.R2:F2})");
-                Console.WriteLine($"Touch 1: ({dss.Touchpad1.X}, {dss.Touchpad1.Y}, {dss.Touchpad1.IsDown}, {dss.Touchpad1.Id})");
-                Console.WriteLine($"Touch 2: ({dss.Touchpad2.X}, {dss.Touchpad2.Y}, {dss.Touchpad2.IsDown}, {dss.Touchpad2.Id})");
-                Console.WriteLine($"Gyro: ({dss.Gyro.X}, {dss.Gyro.Y}, {dss.Gyro.Z})");
-                Console.WriteLine($"Accel: ({dss.Accelerometer.X}, {dss.Accelerometer.Y}, {dss.Accelerometer.Z}); m={dss.Accelerometer.Magnitude()}");
-                Console.WriteLine($"Headphone: {dss.IsHeadphoneConnected}");
-                Console.WriteLine($"Battery: {dss.BatteryStatus.IsCharging}, {dss.BatteryStatus.IsFullyCharged}, {dss.BatteryStatus.Level}");
-
-                ListPressedButtons(dss);
-
-                ds.OutputState.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
-                ds.OutputState.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
-
-                if (!pMicBtnState && dss.MicButton)
-                {
-                    ds.OutputState.MicLed = ds.OutputState.MicLed switch
-                    {
-                        MicLed.Off => MicLed.Pulse,
-                        MicLed.Pulse => MicLed.On,
-                        _ => MicLed.Off
-                    };
-                }
-                pMicBtnState = dss.MicButton;
-
-                if (!pR1State && dss.R1Button)
-                {
-                    ds.OutputState.PlayerLed = ds.OutputState.PlayerLed switch
-                    {
-                        PlayerLed.None => PlayerLed.Player1,
-                        PlayerLed.Player1 => PlayerLed.Player2,
-                        PlayerLed.Player2 => PlayerLed.Player3,
-                        PlayerLed.Player3 => PlayerLed.Player4,
-                        PlayerLed.Player4 => PlayerLed.All,
-                        _ => PlayerLed.None
-                    };
-                }
-                pR1State = dss.R1Button;
-
-                if (!pL1State && dss.L1Button)
-                {
-                    ds.OutputState.PlayerLedBrightness = ds.OutputState.PlayerLedBrightness switch
-                    {
-                        PlayerLedBrightness.High => PlayerLedBrightness.Low,
-                        PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
-                        _ => PlayerLedBrightness.High
-                    };
-                }
-                pL1State = dss.L1Button;
-
-                ds.OutputState.LightbarColor = ColorWheel(wheelPos);
-                wheelPos = (wheelPos + 5) % 384;
-
-                Thread.Sleep(20);
-            } while (!dss.LogoButton);
-            ds.OutputState.LightbarBehavior = LightbarBehavior.PulseBlue;
-            ds.OutputState.PlayerLed = PlayerLed.None;
-            ds.OutputState.R2Effect = TriggerEffect.Default;
-            ds.OutputState.L2Effect = TriggerEffect.Default;
-            ds.ReadWriteOnce();
-            ds.Release();
         }
 
-        static void MainAsyncPolling(DualSense ds)
+        static void ProcessStateLogic(DualSenseInputState dss, DualSenseOutputState dso, 
+            ref DualSenseInputState pState, ref int wheelPos)
         {
-            ds.Acquire();
-            bool pMicBtnState = false;
-            bool pR1State = false;
-            bool pL1State = false;
+            Console.Clear();
 
-            ds.JoystickDeadZone = 0.1f;
-            ds.OutputState = new DualSenseOutputState() {
-                LightbarBehavior = LightbarBehavior.CustomColor,
-                R2Effect = new TriggerEffect.Vibrate(20, 1, 1, 1),
-                L2Effect = new TriggerEffect.Section(0.0f, 0.5f)
-            };
-            int wheelPos = 0;
-            // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
-            // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
-            ds.BeginPolling(100, (dss, dso) => { 
-                Console.Clear();
+            Console.WriteLine($"LS: ({dss.LeftAnalogStick.X:F2}, {dss.LeftAnalogStick.Y:F2})");
+            Console.WriteLine($"RS: ({dss.RightAnalogStick.X:F2}, {dss.RightAnalogStick.Y:F2})");
+            Console.WriteLine($"Triggers: ({dss.L2:F2}, {dss.R2:F2})");
+            Console.WriteLine($"Touch 1: ({dss.Touchpad1.X}, {dss.Touchpad1.Y}, {dss.Touchpad1.IsDown}, {dss.Touchpad1.Id})");
+            Console.WriteLine($"Touch 2: ({dss.Touchpad2.X}, {dss.Touchpad2.Y}, {dss.Touchpad2.IsDown}, {dss.Touchpad2.Id})");
+            Console.WriteLine($"Gyro: ({dss.Gyro.X}, {dss.Gyro.Y}, {dss.Gyro.Z})");
+            Console.WriteLine($"Accel: ({dss.Accelerometer.X}, {dss.Accelerometer.Y}, {dss.Accelerometer.Z}); m={dss.Accelerometer.Magnitude()}");
+            Console.WriteLine($"Headphone: {dss.IsHeadphoneConnected}");
+            Console.WriteLine($"Battery: {dss.BatteryStatus.IsCharging}, {dss.BatteryStatus.IsFullyCharged}, {dss.BatteryStatus.Level}");
 
-                Console.WriteLine($"LS: ({dss.LeftAnalogStick.X:F2}, {dss.LeftAnalogStick.Y:F2})");
-                Console.WriteLine($"RS: ({dss.RightAnalogStick.X:F2}, {dss.RightAnalogStick.Y:F2})");
-                Console.WriteLine($"Triggers: ({dss.L2:F2}, {dss.R2:F2})");
-                Console.WriteLine($"Touch 1: ({dss.Touchpad1.X}, {dss.Touchpad1.Y}, {dss.Touchpad1.IsDown}, {dss.Touchpad1.Id})");
-                Console.WriteLine($"Touch 2: ({dss.Touchpad2.X}, {dss.Touchpad2.Y}, {dss.Touchpad2.IsDown}, {dss.Touchpad2.Id})");
-                Console.WriteLine($"Gyro: ({dss.Gyro.X}, {dss.Gyro.Y}, {dss.Gyro.Z})");
-                Console.WriteLine($"Accel: ({dss.Accelerometer.X}, {dss.Accelerometer.Y}, {dss.Accelerometer.Z}); m={dss.Accelerometer.Magnitude()}");
-                Console.WriteLine($"Headphone: {dss.IsHeadphoneConnected}");
-                Console.WriteLine($"Battery: {dss.BatteryStatus.IsCharging}, {dss.BatteryStatus.IsFullyCharged}, {dss.BatteryStatus.Level}");
+            ListPressedButtons(dss);
 
-                ListPressedButtons(dss);
+            dso.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
+            dso.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
-                dso.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
-                dso.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
-
-                if (!pMicBtnState && dss.MicButton)
+            if (!pState.MicButton && dss.MicButton)
+            {
+                dso.MicLed = dso.MicLed switch
                 {
-                    dso.MicLed = dso.MicLed switch
-                    {
-                        MicLed.Off => MicLed.Pulse,
-                        MicLed.Pulse => MicLed.On,
-                        _ => MicLed.Off
-                    };
-                }
-                pMicBtnState = dss.MicButton;
+                    MicLed.Off => MicLed.Pulse,
+                    MicLed.Pulse => MicLed.On,
+                    _ => MicLed.Off
+                };
+            }
 
-                if (!pR1State && dss.R1Button)
+            if (!pState.R1Button && dss.R1Button)
+            {
+                dso.PlayerLed = dso.PlayerLed switch
                 {
-                    dso.PlayerLed = dso.PlayerLed switch
-                    {
-                        PlayerLed.None => PlayerLed.Player1,
-                        PlayerLed.Player1 => PlayerLed.Player2,
-                        PlayerLed.Player2 => PlayerLed.Player3,
-                        PlayerLed.Player3 => PlayerLed.Player4,
-                        PlayerLed.Player4 => PlayerLed.All,
-                        _ => PlayerLed.None
-                    };
-                }
-                pR1State = dss.R1Button;
+                    PlayerLed.None => PlayerLed.Player1,
+                    PlayerLed.Player1 => PlayerLed.Player2,
+                    PlayerLed.Player2 => PlayerLed.Player3,
+                    PlayerLed.Player3 => PlayerLed.Player4,
+                    PlayerLed.Player4 => PlayerLed.All,
+                    _ => PlayerLed.None
+                };
+            }
 
-                if (!pL1State && dss.L1Button)
+            if (!pState.L1Button && dss.L1Button)
+            {
+                dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
                 {
-                    dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
-                    {
-                        PlayerLedBrightness.High => PlayerLedBrightness.Low,
-                        PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
-                        _ => PlayerLedBrightness.High
-                    };
-                }
-                pL1State = dss.L1Button;
+                    PlayerLedBrightness.High => PlayerLedBrightness.Low,
+                    PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
+                    _ => PlayerLedBrightness.High
+                };
+            }
 
-                dso.LightbarColor = ColorWheel(wheelPos);
-                wheelPos = (wheelPos + 5) % 384;
+            dso.LightbarColor = ColorWheel(wheelPos);
 
-                return dso;
-            });
-            //note that readkey is blocking, which means we know this input method is truly async
-            Console.ReadKey(true);
+            pState = dss;
+            wheelPos = (wheelPos + 5) % 384;
+        }
+
+        static void ResetToDefaultState(DualSense ds)
+        {
             ds.OutputState.LightbarBehavior = LightbarBehavior.PulseBlue;
             ds.OutputState.PlayerLed = PlayerLed.None;
             ds.OutputState.R2Effect = TriggerEffect.Default;
             ds.OutputState.L2Effect = TriggerEffect.Default;
             ds.OutputState.MicLed = MicLed.Off;
-            ds.EndPolling();
             ds.ReadWriteOnce();
-            ds.Release();
         }
 
         static LightbarColor ColorWheel(int position)

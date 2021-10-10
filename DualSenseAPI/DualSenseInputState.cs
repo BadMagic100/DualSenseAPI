@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DualSenseAPI.Util;
 
 namespace DualSenseAPI
@@ -12,9 +9,10 @@ namespace DualSenseAPI
     /// </summary>
     public class DualSenseInputState
     {
-        private readonly byte[] data;
-        private readonly IoMode inputMode;
-        private readonly float deadZone;
+        /// <summary>
+        /// Default constructor, initializes all fields to 0/false/default
+        /// </summary>
+        internal DualSenseInputState() { }
 
         /// <summary>
         /// Constructs a DualSenseInputState. Parses the HID input report.
@@ -24,20 +22,16 @@ namespace DualSenseAPI
         /// <param name="deadZone">The DualSense's joystick deadzone.</param>
         internal DualSenseInputState(byte[] data, IoMode inputMode, float deadZone)
         {
-            this.data = data;
-            this.inputMode = inputMode;
-            this.deadZone = deadZone;
-
             // Analog inputs
-            LeftAnalogStick = ReadAnalogStick(data[0], data[1]);
-            RightAnalogStick = ReadAnalogStick(data[2], data[3]);
-            L2 = GetModeSwitch(4, 7).ToUnsignedFloat();
-            R2 = GetModeSwitch(5, 8).ToUnsignedFloat();
+            LeftAnalogStick = ReadAnalogStick(data[0], data[1], deadZone);
+            RightAnalogStick = ReadAnalogStick(data[2], data[3], deadZone);
+            L2 = GetModeSwitch(inputMode, data, 4, 7).ToUnsignedFloat();
+            R2 = GetModeSwitch(inputMode, data, 5, 8).ToUnsignedFloat();
 
             // Buttons
-            byte btnBlock1 = GetModeSwitch(7, 4);
-            byte btnBlock2 = GetModeSwitch(8, 5);
-            byte btnBlock3 = GetModeSwitch(9, 6);
+            byte btnBlock1 = GetModeSwitch(inputMode, data, 7, 4);
+            byte btnBlock2 = GetModeSwitch(inputMode, data, 8, 5);
+            byte btnBlock3 = GetModeSwitch(inputMode, data, 9, 6);
             SquareButton = btnBlock1.HasFlag(0x10);
             CrossButton = btnBlock1.HasFlag(0x20);
             CircleButton = btnBlock1.HasFlag(0x40);
@@ -56,20 +50,28 @@ namespace DualSenseAPI
             R3Button = btnBlock2.HasFlag(0x80);
             LogoButton = btnBlock3.HasFlag(0x01);
             TouchpadButton = btnBlock3.HasFlag(0x02);
-            MicButton = GetModeSwitch(9, -1).HasFlag(0x04); // not supported on the broken BT protocol, otherwise would likely be in btnBlock3
+            MicButton = GetModeSwitch(inputMode, data, 9, -1).HasFlag(0x04); // not supported on the broken BT protocol, otherwise would likely be in btnBlock3
 
             // Multitouch
-            Touchpad1 = ReadTouchpad(GetModeSwitch(32, -1, 4));
-            Touchpad2 = ReadTouchpad(GetModeSwitch(36, -1, 4));
+            Touchpad1 = ReadTouchpad(GetModeSwitch(inputMode, data, 32, -1, 4));
+            Touchpad2 = ReadTouchpad(GetModeSwitch(inputMode, data, 36, -1, 4));
 
             // 6-axis
             // gyro directions seem to follow left-hand rule rather than right, so reverse the directions
-            Gyro = -ReadAccelAxes(GetModeSwitch(15, -1, 2), GetModeSwitch(17, -1, 2), GetModeSwitch(19, -1, 2));
-            Accelerometer = ReadAccelAxes(GetModeSwitch(21, -1, 2), GetModeSwitch(23, -1, 2), GetModeSwitch(25, -1, 2));
+            Gyro = -ReadAccelAxes(
+                GetModeSwitch(inputMode, data, 15, -1, 2),
+                GetModeSwitch(inputMode, data, 17, -1, 2), 
+                GetModeSwitch(inputMode, data, 19, -1, 2)
+            );
+            Accelerometer = ReadAccelAxes(
+                GetModeSwitch(inputMode, data, 21, -1, 2),
+                GetModeSwitch(inputMode, data, 23, -1, 2),
+                GetModeSwitch(inputMode, data, 25, -1, 2)
+            );
 
             // Misc
-            byte batteryByte = GetModeSwitch(52, -1);
-            byte miscByte = GetModeSwitch(53, -1); // this contains various stuff, seems to have both audio and battery info
+            byte batteryByte = GetModeSwitch(inputMode, data, 52, -1);
+            byte miscByte = GetModeSwitch(inputMode, data, 53, -1); // this contains various stuff, seems to have both audio and battery info
             BatteryStatus = new BatteryStatus
             {
                 IsCharging = batteryByte.HasFlag(0x10),
@@ -79,14 +81,16 @@ namespace DualSenseAPI
             IsHeadphoneConnected = miscByte.HasFlag(0x01);
         }
 
-        // todo - find a way to differentiate between the "valid" and "broken" BT states - now that stuff is working right,
-        // we can always take the USB index. Hold the other one for when we can fix this.
+        // TODO: find a way to differentiate between the "valid" and "broken" BT states - now that stuff is working right,
+        // we can always take the USB index. Hold the other one for when we can fix this (or prove it can't break)
         // this seems to be a discovery issue of some kind, other things (like steam and ds4windows) have no problem finding it.
         // seems to be fixed permanently after using DS4Windows but ideally we shouldn't have to have that precondition,
         // and steam was able to handle it fine before that
         /// <summary>
         /// Gets a data byte at the given index based on the input mode.
         /// </summary>
+        /// <param name="inputMode">The current input mode.</param>
+        /// <param name="data">The data bytes to read from.</param>
         /// <param name="indexIfUsb">The index to access in USB or valid Bluetooth input mode.</param>
         /// <param name="indexIfBt">The index to access in the broken Bluetooth input mode.</param>
         /// <returns>
@@ -98,7 +102,7 @@ namespace DualSenseAPI
         /// in a different order with some data missing. It resolved itself before I could solve the problem but
         /// keeping this around for when I can find it again. Currently always uses <paramref name="indexIfUsb"/>.
         /// </remarks>
-        private byte GetModeSwitch(int indexIfUsb, int indexIfBt)
+        private byte GetModeSwitch(IoMode inputMode, byte[] data, int indexIfUsb, int indexIfBt)
         {
             return indexIfUsb >= 0 ? data[indexIfUsb] : (byte)0;
             //return InputMode switch
@@ -112,6 +116,8 @@ namespace DualSenseAPI
         /// <summary>
         /// Gets several data bytes at the given index based on the input mode.
         /// </summary>
+        /// <param name="inputMode">The current input mode.</param>
+        /// <param name="data">The data bytes to read from.</param>
         /// <param name="startIndexIfUsb">The start index in USB or valid Bluetooth input mode.</param>
         /// <param name="startIndexIfBt">The start index in the broken Bluetooth input mode.</param>
         /// <param name="size">The number of bytes to get.</param>
@@ -124,7 +130,7 @@ namespace DualSenseAPI
         /// in a different order with some data missing. It resolved itself before I could solve the problem but
         /// keeping this around for when I can find it again. Currently always uses <paramref name="startIndexIfUsb"/>.
         /// </remarks>
-        private byte[] GetModeSwitch(int startIndexIfUsb, int startIndexIfBt, int size)
+        private byte[] GetModeSwitch(IoMode inputMode, byte[] data, int startIndexIfUsb, int startIndexIfBt, int size)
         {
             return startIndexIfUsb >= 0 ? data.Skip(startIndexIfUsb).Take(size).ToArray() : new byte[size];
             //return InputMode switch
@@ -141,7 +147,7 @@ namespace DualSenseAPI
         /// <param name="x">The x byte.</param>
         /// <param name="y">The y byte.</param>
         /// <returns>A vector for the joystick input.</returns>
-        private Vec2 ReadAnalogStick(byte x, byte y)
+        private Vec2 ReadAnalogStick(byte x, byte y, float deadZone)
         {
             float x1 = x.ToSignedFloat();
             float y1 = -y.ToSignedFloat();

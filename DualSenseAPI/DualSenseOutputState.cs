@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DualSenseAPI.Util;
 
 namespace DualSenseAPI
@@ -62,25 +58,6 @@ namespace DualSenseAPI
 
         // default no-arg constructor
         public DualSenseOutputState() { }
-
-        /// <summary>
-        /// Copy constructor for reference safety in events.
-        /// </summary>
-        /// <param name="original">The original output state to copy.</param>
-        internal DualSenseOutputState(DualSenseOutputState original)
-        {
-            LeftRumble = original.LeftRumble;
-            RightRumble = original.RightRumble;
-            MicLed = original.MicLed;
-            PlayerLed = original.PlayerLed;
-            PlayerLedBrightness = original.PlayerLedBrightness;
-            LightbarBehavior = original.LightbarBehavior;
-            // lightbar color is a struct, which is a value type so this assignment is fine.
-            LightbarColor = original.LightbarColor;
-            // trigger effects all have no setters, making them immutables. this reassignment is fine
-            R2Effect = original.R2Effect;
-            L2Effect = original.L2Effect;
-        }
 
         /// <summary>
         /// Gets the bytes needed to describe an adaptive trigger effect.

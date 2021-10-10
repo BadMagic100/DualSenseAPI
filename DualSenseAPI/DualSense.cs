@@ -5,18 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DualSenseAPI
 {
     /// <summary>
-    /// A handler for a state polling IO event
+    /// A handler for a state polling IO event. The sender has the <see cref="DualSenseInputState"/>
+    /// from the most recent poll, and can be used to update the next
+    /// <see cref="DualSenseOutputState"/>.
     /// </summary>
-    /// <param name="currentInputState">The most recently polled input state.</param>
-    /// <param name="currentOutputState">The most recently sent output state.</param>
-    /// <returns>The next output state to send, or null if the output state shouldn't change</returns>
-    public delegate DualSenseOutputState? StateHandler(DualSenseInputState currentInputState, DualSenseOutputState currentOutputState);
+    /// <param name="sender">The <see cref="DualSense"/> instance that was just polled.</param>
+    public delegate void StateHandler(DualSense sender);
 
     public class DualSense
     {
@@ -27,7 +26,7 @@ namespace DualSenseAPI
 
         // async polling
         private IDisposable? pollerSubscription;
-        private Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState?>? onState;
+        private StateHandler? onState;
 
         /// <summary>
         /// The I/O mode the controller is connected by.
@@ -40,7 +39,6 @@ namespace DualSenseAPI
         /// </summary>
         public float JoystickDeadZone { get; set; } = 0;
 
-        // TODO: how do we deal with the (im)mutability of this?
         /// <summary>
         /// This controller's output state.
         /// </summary>
@@ -49,7 +47,7 @@ namespace DualSenseAPI
         /// <summary>
         /// This controller's most recently polled input state.
         /// </summary>
-        public DualSenseInputState? InputState { get; private set; } = null;
+        public DualSenseInputState InputState { get; private set; } = new DualSenseInputState();
 
         /// <summary>
         /// Private constructor for <see cref="EnumerateControllers"/>.
@@ -138,13 +136,9 @@ namespace DualSenseAPI
             {
                 throw new InvalidOperationException("Can't handle state without a handler");
             }
-            // TODO: dislike that this modifies output state on the instance, but not the input state. would prefer this doesn't modify instance state at all,
-            // so the polling is independent of the instance's sync state entirely, aside from the subscription. could settle for updating both states on the
-            // instance, would need to be thread-safe
-
-            // pass a copy so we're not modifying the current state by reference. we'll reassign when done. would be nice if these were properly immutable,
-            // but that causes problems almost everywhere we use it
-            OutputState = onState(inputState, new DualSenseOutputState(OutputState)) ?? OutputState;
+            // TODO: may need thread safety measures, investigate.
+            InputState = inputState;
+            onState(this);
         }
 
         /// <summary>
@@ -152,7 +146,7 @@ namespace DualSenseAPI
         /// </summary>
         /// <param name="pollingIntervalMs">How long to wait between each I/O loop, in milliseconds</param>
         /// <param name="onState">The state handler</param>
-        public void BeginPolling(uint pollingIntervalMs, Func<DualSenseInputState, DualSenseOutputState, DualSenseOutputState?> onState)
+        public void BeginPolling(uint pollingIntervalMs, StateHandler onState)
         {
             if (pollerSubscription != null)
             {
@@ -163,7 +157,7 @@ namespace DualSenseAPI
             IObservable<DualSenseInputState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
             // TODO: figure how we can leverage DistinctUntilChanged (or similar) so we can do filtered eventing (e.g. button pressed only)
-            // how do we allow both to modify state in a smart way (i.e. without overriding each other?)
+            // how would we allow both to modify state in a smart way (i.e. without overriding each other?) if needed?
 
             pollerSubscription = stateObserver.Subscribe(ProcessState);
         }
