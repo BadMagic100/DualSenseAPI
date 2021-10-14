@@ -60,7 +60,7 @@ namespace Demo
         static void MainSyncBlocking(DualSense ds)
         {
             ds.Acquire();
-            DualSenseInputState pState = ds.InputState;
+            DualSenseInputState prevState = ds.InputState;
             int wheelPos = 0;
 
             SetInitialProperties(ds);
@@ -68,7 +68,7 @@ namespace Demo
             do
             {
                 dss = ds.ReadWriteOnce();
-                ProcessStateLogic(dss, ds.OutputState, ref pState, ref wheelPos);
+                (prevState, wheelPos) = ProcessStateLogic(dss, ds.OutputState, prevState, wheelPos);
                 
                 Thread.Sleep(20);
             } while (!dss.LogoButton);
@@ -79,14 +79,14 @@ namespace Demo
         static void MainAsyncPolling(DualSense ds)
         {
             ds.Acquire();
-            DualSenseInputState pState = ds.InputState;
+            DualSenseInputState prevState = ds.InputState;
             int wheelPos = 0;
 
             SetInitialProperties(ds);
             // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
             // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
             ds.BeginPolling(100, (sender) => {
-                ProcessStateLogic(sender.InputState, sender.OutputState, ref pState, ref wheelPos);
+                (prevState, wheelPos) = ProcessStateLogic(sender.InputState, sender.OutputState, prevState, wheelPos);
             });
             //note that readkey is blocking, which means we know this input method is truly async
             Console.ReadKey(true);
@@ -106,8 +106,8 @@ namespace Demo
             };
         }
 
-        static void ProcessStateLogic(DualSenseInputState dss, DualSenseOutputState dso, 
-            ref DualSenseInputState pState, ref int wheelPos)
+        static (DualSenseInputState, int) ProcessStateLogic(DualSenseInputState dss, DualSenseOutputState dso, 
+            DualSenseInputState prevState, int wheelPos)
         {
             Console.Clear();
 
@@ -126,7 +126,7 @@ namespace Demo
             dso.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
             dso.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
-            if (!pState.MicButton && dss.MicButton)
+            if (!prevState.MicButton && dss.MicButton)
             {
                 dso.MicLed = dso.MicLed switch
                 {
@@ -136,7 +136,7 @@ namespace Demo
                 };
             }
 
-            if (!pState.R1Button && dss.R1Button)
+            if (!prevState.R1Button && dss.R1Button)
             {
                 dso.PlayerLed = dso.PlayerLed switch
                 {
@@ -149,7 +149,7 @@ namespace Demo
                 };
             }
 
-            if (!pState.L1Button && dss.L1Button)
+            if (!prevState.L1Button && dss.L1Button)
             {
                 dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
                 {
@@ -161,8 +161,7 @@ namespace Demo
 
             dso.LightbarColor = ColorWheel(wheelPos);
 
-            pState = dss;
-            wheelPos = (wheelPos + 5) % 384;
+            return (dss, (wheelPos + 5) % 384);
         }
 
         static void ResetToDefaultState(DualSense ds)
