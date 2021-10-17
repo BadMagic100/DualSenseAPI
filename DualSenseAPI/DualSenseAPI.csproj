@@ -6,9 +6,73 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\0dfa5kgu.aqe" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\0kfn2u1o.2hw" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\0xn0qxtl.g2a" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\1mopssrd.nc2" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\23ty0uk2.42z" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\2jhyx40s.x3k" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\2jwhu0sv.o2y" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\2rhs1tl5.ufa" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\3cfwgltw.ov5" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\3juu1wbg.l4v" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\3vb1yhxd.m4t" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\4w1vq1qd.ahz" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\5czfgpwf.fdu" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\5yksztml.q0y" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\als3qnqj.xrr" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\aud31am5.fx5" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\c14llvlf.3bt" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\cmtqujep.1wg" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\eqwotztl.ikl" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\frd0t4jk.nio" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\g0yk1gul.mmv" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\grphudah.zia" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\hdgd2axp.d1j" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\hutirhi5.l1q" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\ihyne0ts.f3i" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\kf3o022x.m12" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\l02ql24b.0ju" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\lq4dullm.uoq" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\mqm4dxnz.55f" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\nftwedzn.foy" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\nkotksri.jka" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\o2mtxqqi.q5a" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\ohkt0aa1.5rm" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\onl540be.hut" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\opar5bbk.ulx" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\ovdsfkma.3fu" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\pnhimgw5.ps3" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\qs13x1vc.2vs" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\rpyelyby.ccm" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\tel0vegv.gfj" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\tvjaoibw.xow" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\u3wdl54m.yrm" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\u5ejnx5l.2ai" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\ubu5xry2.czi" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\vcngrzlm.0mb" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\vowdehsw.rpe" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\vxwlu2kl.3ol" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\wgqm4l4t.vsd" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\wvbdiuzt.5zy" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\x22jaghx.fnl" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\xewmmsgr.egf" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\yalylokm.try" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\yixzvyak.4f1" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\zyfe5k5t.bot" />
+    <None Include="docs\obj\.cache\build\3hnxizot.dkb\zz2e4qio.ni5" />
+    <None Include="docs\obj\.cache\build\build.info" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Device.Net" Version="4.2.1" />
     <PackageReference Include="Hid.Net" Version="4.2.1" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="docs\apidoc\" />
+    <Folder Include="docs\images\" />
   </ItemGroup>
 
 </Project>

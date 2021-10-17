@@ -136,7 +136,6 @@ namespace DualSenseAPI
             {
                 throw new InvalidOperationException("Can't handle state without a handler");
             }
-            // TODO: may need thread safety measures, investigate.
             InputState = inputState;
             onState(this);
         }
@@ -146,6 +145,15 @@ namespace DualSenseAPI
         /// </summary>
         /// <param name="pollingIntervalMs">How long to wait between each I/O loop, in milliseconds</param>
         /// <param name="onState">The state handler</param>
+        /// <remarks>
+        /// Instance state is not thread safe. In other words, when using polling, updating instance state 
+        /// (such as <see cref="OutputState"/>) both inside and outside of <paramref name="onState"/>
+        /// may create unexpected results. When using polling, it is generally expected you will only make
+        /// modifications to state inside the <paramref name="onState"/> handler in response to input, or
+        /// outside of the handler in response to external events (for example, game logic). It's also
+        /// expected that you will only use the <see cref="DualSense"/> instance passed as an argument to 
+        /// the sender, rather than external references to instance.
+        /// </remarks>
         public void BeginPolling(uint pollingIntervalMs, StateHandler onState)
         {
             if (pollerSubscription != null)
@@ -158,6 +166,7 @@ namespace DualSenseAPI
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
             // TODO: figure how we can leverage DistinctUntilChanged (or similar) so we can do filtered eventing (e.g. button pressed only)
             // how would we allow both to modify state in a smart way (i.e. without overriding each other?) if needed?
+            // this also applies for consumers - logically they should not need to worry about race conditions if they're subscribing to both
 
             pollerSubscription = stateObserver.Subscribe(ProcessState);
         }
