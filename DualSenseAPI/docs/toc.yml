@@ -1,5 +1,3 @@
-- name: Articles
-  href: articles/
 - name: API Documentation
   href: api/
   homepage: api/DualSenseAPI.yml
