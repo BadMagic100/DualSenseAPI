@@ -25,9 +25,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
+      # setup MSBuild
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@1.0.3
+        
       # Install NuGet packages
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.2
+        uses: NuGet/setup-nuget@v1.0.5
       - name: Install packages
         run: nuget restore DualSenseAPI.sln
         
