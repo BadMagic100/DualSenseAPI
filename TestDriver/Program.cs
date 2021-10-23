@@ -82,12 +82,15 @@ namespace Demo
             DualSenseInputState prevState = ds.InputState;
             int wheelPos = 0;
 
+            ds.OnState += (sender) =>
+            {
+                (prevState, wheelPos) = ProcessStateLogic(sender.InputState, sender.OutputState, prevState, wheelPos);
+            };
+
             SetInitialProperties(ds);
             // note this polling rate is actually slower than the delay above, because it can do the processing while waiting for the next poll
             // (20ms/50Hz is actually quite fast and will clear the screen faster than it can write the data)
-            ds.BeginPolling(100, (sender) => {
-                (prevState, wheelPos) = ProcessStateLogic(sender.InputState, sender.OutputState, prevState, wheelPos);
-            });
+            ds.BeginPolling(100);
             //note that readkey is blocking, which means we know this input method is truly async
             Console.ReadKey(true);
             ds.EndPolling();

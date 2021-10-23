@@ -26,7 +26,13 @@ namespace DualSenseAPI
 
         // async polling
         private IDisposable? pollerSubscription;
-        private StateHandler? onState;
+
+        /// <summary>
+        /// State event handler for asynchronous polling.
+        /// </summary>
+        /// <seealso cref="BeginPolling(uint)"/>
+        /// <seealso cref="EndPolling"/>
+        public event StateHandler? OnState;
 
         /// <summary>
         /// The I/O mode the controller is connected by.
@@ -132,35 +138,29 @@ namespace DualSenseAPI
         /// <param name="inputState">The receieved input state</param>
         private void ProcessState(DualSenseInputState inputState)
         {
-            if (onState == null)
-            {
-                throw new InvalidOperationException("Can't handle state without a handler");
-            }
             InputState = inputState;
-            onState(this);
+            OnState?.Invoke(this);
         }
 
         /// <summary>
         /// Begins asynchously updating the output state and polling the input state at the specified interval.
         /// </summary>
         /// <param name="pollingIntervalMs">How long to wait between each I/O loop, in milliseconds</param>
-        /// <param name="onState">The state handler</param>
         /// <remarks>
         /// Instance state is not thread safe. In other words, when using polling, updating instance state 
-        /// (such as <see cref="OutputState"/>) both inside and outside of <paramref name="onState"/>
+        /// (such as <see cref="OutputState"/>) both inside and outside of <see cref="OnState"/>
         /// may create unexpected results. When using polling, it is generally expected you will only make
-        /// modifications to state inside the <paramref name="onState"/> handler in response to input, or
+        /// modifications to state inside the <see cref="OnState"/> handler in response to input, or
         /// outside of the handler in response to external events (for example, game logic). It's also
         /// expected that you will only use the <see cref="DualSense"/> instance passed as an argument to 
         /// the sender, rather than external references to instance.
         /// </remarks>
-        public void BeginPolling(uint pollingIntervalMs, StateHandler onState)
+        public void BeginPolling(uint pollingIntervalMs)
         {
             if (pollerSubscription != null)
             {
                 throw new InvalidOperationException("Can't begin polling after it's already started.");
             }
-            this.onState = onState;
 
             IObservable<DualSenseInputState> stateObserver = Observable.Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(pollingIntervalMs))
                 .SelectMany(Observable.FromAsync(() => ReadWriteOnceAsync()));
@@ -182,7 +182,6 @@ namespace DualSenseAPI
             }
             pollerSubscription.Dispose();
             pollerSubscription = null;
-            onState = null;
         }
 
         /// <summary>
