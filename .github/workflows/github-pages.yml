@@ -25,15 +25,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         
-      # setup MSBuild
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.3
-        
-      # Install NuGet packages
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
-      - name: Install packages
-        run: nuget restore DualSenseAPI.sln
+      # setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+            dotnet-version: '3.1.x'
+        run: dotnet restore
         
       # Install DocFX
       - name: Setup DocFX
