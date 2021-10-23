@@ -27,7 +27,7 @@ jobs:
         
       # setup MSBuild
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@1.0.3
+        uses: microsoft/setup-msbuild@v1.0.3
         
       # Install NuGet packages
       - name: Setup NuGet
