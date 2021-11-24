@@ -1,4 +1,5 @@
 ﻿using Device.Net;
+using DualSenseAPI.State;
 using DualSenseAPI.Util;
 using System;
 using System.Collections.Generic;
@@ -10,13 +11,8 @@ using System.Threading.Tasks;
 namespace DualSenseAPI
 {
     /// <summary>
-    /// A handler for a state polling IO event. The sender has the <see cref="DualSenseInputState"/>
-    /// from the most recent poll, and can be used to update the next
-    /// <see cref="DualSenseOutputState"/>.
+    /// Interaction logic for DualSense controllers.
     /// </summary>
-    /// <param name="sender">The <see cref="DualSense"/> instance that was just polled.</param>
-    public delegate void StateHandler(DualSense sender);
-
     public class DualSense
     {
         // IO parameters
@@ -32,7 +28,14 @@ namespace DualSenseAPI
         /// </summary>
         /// <seealso cref="BeginPolling(uint)"/>
         /// <seealso cref="EndPolling"/>
-        public event StateHandler? OnState;
+        public event StatePolledHandler? OnStatePolled;
+
+        /// <summary>
+        /// Button state changed event handler for asynchronous polling.
+        /// </summary>
+        /// <seealso cref="BeginPolling(uint)"/>
+        /// <seealso cref="EndPolling"/>
+        public event ButtonStateChangedHandler? OnButtonStateChanged;
 
         /// <summary>
         /// The I/O mode the controller is connected by.
@@ -135,11 +138,21 @@ namespace DualSenseAPI
         /// <summary>
         /// Process a state event. Wraps around user-provided handler since Reactive needs an Action<>.
         /// </summary>
-        /// <param name="inputState">The receieved input state</param>
-        private void ProcessState(DualSenseInputState inputState)
+        /// <param name="nextState">The receieved input state</param>
+        private void ProcessEachState(DualSenseInputState nextState)
         {
-            InputState = inputState;
-            OnState?.Invoke(this);
+            DualSenseInputState prevState = InputState;
+            InputState = nextState;
+            // don't take up the burden to diff the changes unless someone cares
+            if (OnButtonStateChanged != null)
+            {
+                DualSenseInputStateButtonDelta delta = new DualSenseInputStateButtonDelta(prevState, nextState);
+                if (delta.HasChanges) 
+                {
+                    OnButtonStateChanged.Invoke(this, delta);
+                }
+            }
+            OnStatePolled?.Invoke(this);
         }
 
         /// <summary>
@@ -148,9 +161,9 @@ namespace DualSenseAPI
         /// <param name="pollingIntervalMs">How long to wait between each I/O loop, in milliseconds</param>
         /// <remarks>
         /// Instance state is not thread safe. In other words, when using polling, updating instance state 
-        /// (such as <see cref="OutputState"/>) both inside and outside of <see cref="OnState"/>
+        /// (such as <see cref="OutputState"/>) both inside and outside of <see cref="OnStatePolled"/>
         /// may create unexpected results. When using polling, it is generally expected you will only make
-        /// modifications to state inside the <see cref="OnState"/> handler in response to input, or
+        /// modifications to state inside the <see cref="OnStatePolled"/> handler in response to input, or
         /// outside of the handler in response to external events (for example, game logic). It's also
         /// expected that you will only use the <see cref="DualSense"/> instance passed as an argument to 
         /// the sender, rather than external references to instance.
@@ -168,7 +181,7 @@ namespace DualSenseAPI
             // how would we allow both to modify state in a smart way (i.e. without overriding each other?) if needed?
             // this also applies for consumers - logically they should not need to worry about race conditions if they're subscribing to both
 
-            pollerSubscription = stateObserver.Subscribe(ProcessState);
+            pollerSubscription = stateObserver.Subscribe(ProcessEachState);
         }
 
         /// <summary>

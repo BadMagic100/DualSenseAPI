@@ -2,7 +2,7 @@
 using System.Linq;
 using DualSenseAPI.Util;
 
-namespace DualSenseAPI
+namespace DualSenseAPI.State
 {
     /// <summary>
     /// All available input variables for a DualSense controller.

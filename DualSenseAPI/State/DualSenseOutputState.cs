@@ -1,7 +1,7 @@
 ﻿using System;
 using DualSenseAPI.Util;
 
-namespace DualSenseAPI
+namespace DualSenseAPI.State
 {
     /// <summary>
     /// All available output variables for a DualSense controller.

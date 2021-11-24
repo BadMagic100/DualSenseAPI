@@ -1,5 +1,5 @@
 ﻿using DualSenseAPI;
-using DualSenseAPI.Util;
+using DualSenseAPI.State;
 using System;
 using System.Linq;
 using System.Collections;
@@ -65,11 +65,48 @@ namespace Demo
 
             SetInitialProperties(ds);
             DualSenseInputState dss;
+            DualSenseOutputState dso;
             do
             {
                 dss = ds.ReadWriteOnce();
-                (prevState, wheelPos) = ProcessStateLogic(dss, ds.OutputState, prevState, wheelPos);
-                
+                dso = ds.OutputState;
+
+                if (!prevState.MicButton && dss.MicButton)
+                {
+                    dso.MicLed = dso.MicLed switch
+                    {
+                        MicLed.Off => MicLed.Pulse,
+                        MicLed.Pulse => MicLed.On,
+                        _ => MicLed.Off
+                    };
+                }
+
+                if (!prevState.R1Button && dss.R1Button)
+                {
+                    dso.PlayerLed = dso.PlayerLed switch
+                    {
+                        PlayerLed.None => PlayerLed.Player1,
+                        PlayerLed.Player1 => PlayerLed.Player2,
+                        PlayerLed.Player2 => PlayerLed.Player3,
+                        PlayerLed.Player3 => PlayerLed.Player4,
+                        PlayerLed.Player4 => PlayerLed.All,
+                        _ => PlayerLed.None
+                    };
+                }
+
+                if (!prevState.L1Button && dss.L1Button)
+                {
+                    dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
+                    {
+                        PlayerLedBrightness.High => PlayerLedBrightness.Low,
+                        PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
+                        _ => PlayerLedBrightness.High
+                    };
+                }
+
+                wheelPos = ProcessStateLogic(dss, ds.OutputState, wheelPos);
+                prevState = dss;
+
                 Thread.Sleep(20);
             } while (!dss.LogoButton);
             ResetToDefaultState(ds);
@@ -79,12 +116,48 @@ namespace Demo
         static void MainAsyncPolling(DualSense ds)
         {
             ds.Acquire();
-            DualSenseInputState prevState = ds.InputState;
             int wheelPos = 0;
 
-            ds.OnState += (sender) =>
+            ds.OnStatePolled += (sender) =>
             {
-                (prevState, wheelPos) = ProcessStateLogic(sender.InputState, sender.OutputState, prevState, wheelPos);
+                wheelPos = ProcessStateLogic(sender.InputState, sender.OutputState, wheelPos);
+            };
+            ds.OnButtonStateChanged += (sender, delta) =>
+            {
+                DualSenseOutputState dso = sender.OutputState;
+                if (delta.MicButton == ButtonDeltaState.Pressed)
+                {
+                    dso.MicLed = dso.MicLed switch
+                    {
+                        MicLed.Off => MicLed.Pulse,
+                        MicLed.Pulse => MicLed.On,
+                        _ => MicLed.Off
+                    };
+                }
+
+                if (delta.R1Button == ButtonDeltaState.Pressed)
+                {
+                    dso.PlayerLed = dso.PlayerLed switch
+                    {
+                        PlayerLed.None => PlayerLed.Player1,
+                        PlayerLed.Player1 => PlayerLed.Player2,
+                        PlayerLed.Player2 => PlayerLed.Player3,
+                        PlayerLed.Player3 => PlayerLed.Player4,
+                        PlayerLed.Player4 => PlayerLed.All,
+                        _ => PlayerLed.None
+                    };
+                }
+
+                if (delta.L1Button == ButtonDeltaState.Pressed)
+                {
+                    dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
+                    {
+                        PlayerLedBrightness.High => PlayerLedBrightness.Low,
+                        PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
+                        _ => PlayerLedBrightness.High
+                    };
+                }
+                Console.WriteLine("Change event fired");
             };
 
             SetInitialProperties(ds);
@@ -109,8 +182,7 @@ namespace Demo
             };
         }
 
-        static (DualSenseInputState, int) ProcessStateLogic(DualSenseInputState dss, DualSenseOutputState dso, 
-            DualSenseInputState prevState, int wheelPos)
+        static int ProcessStateLogic(DualSenseInputState dss, DualSenseOutputState dso, int wheelPos)
         {
             Console.Clear();
 
@@ -129,42 +201,9 @@ namespace Demo
             dso.LeftRumble = Math.Abs(dss.LeftAnalogStick.Y);
             dso.RightRumble = Math.Abs(dss.RightAnalogStick.Y);
 
-            if (!prevState.MicButton && dss.MicButton)
-            {
-                dso.MicLed = dso.MicLed switch
-                {
-                    MicLed.Off => MicLed.Pulse,
-                    MicLed.Pulse => MicLed.On,
-                    _ => MicLed.Off
-                };
-            }
-
-            if (!prevState.R1Button && dss.R1Button)
-            {
-                dso.PlayerLed = dso.PlayerLed switch
-                {
-                    PlayerLed.None => PlayerLed.Player1,
-                    PlayerLed.Player1 => PlayerLed.Player2,
-                    PlayerLed.Player2 => PlayerLed.Player3,
-                    PlayerLed.Player3 => PlayerLed.Player4,
-                    PlayerLed.Player4 => PlayerLed.All,
-                    _ => PlayerLed.None
-                };
-            }
-
-            if (!prevState.L1Button && dss.L1Button)
-            {
-                dso.PlayerLedBrightness = dso.PlayerLedBrightness switch
-                {
-                    PlayerLedBrightness.High => PlayerLedBrightness.Low,
-                    PlayerLedBrightness.Low => PlayerLedBrightness.Medium,
-                    _ => PlayerLedBrightness.High
-                };
-            }
-
             dso.LightbarColor = ColorWheel(wheelPos);
 
-            return (dss, (wheelPos + 5) % 384);
+            return (wheelPos + 5) % 384;
         }
 
         static void ResetToDefaultState(DualSense ds)
