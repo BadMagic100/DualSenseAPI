@@ -1,8 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <Authors>The-Demp</Authors>
+    <Company />
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>(c) 2021 The-Demp</Copyright>
+    <Description>A .NET standard API for interacting with DualSense controllers</Description>
+    <PackageTags>DualSense PS5 PlayStation</PackageTags>
+    <RepositoryUrl>https://github.com/The-Demp/DualSenseAPI</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -74,5 +82,12 @@
     <Folder Include="docs\apidoc\" />
     <Folder Include="docs\images\" />
   </ItemGroup>
+
+	<ItemGroup>
+		<Content Include="..\README.md">
+			<Pack>true</Pack>
+			<PackagePath>\</PackagePath>
+		</Content>
+	</ItemGroup>
 
 </Project>
