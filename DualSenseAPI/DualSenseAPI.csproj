@@ -7,10 +7,12 @@
     <Company />
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>(c) 2021 The-Demp</Copyright>
     <Description>A .NET standard API for interacting with DualSense controllers</Description>
     <PackageTags>DualSense PS5 PlayStation</PackageTags>
     <RepositoryUrl>https://github.com/The-Demp/DualSenseAPI</RepositoryUrl>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -84,10 +86,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Content Include="..\README.md">
-			<Pack>true</Pack>
-			<PackagePath>\</PackagePath>
-		</Content>
+		<Content Include="..\README.md" Pack="true" PackagePath="\"/>
 	</ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 # DualSenseAPI
 
 ![docs workflow status](https://github.com/The-Demp/DualSenseAPI/actions/workflows/github-pages.yml/badge.svg)
-![nuget version](https://shields.io/nuget/v/DualSenseAPI)
+![nuget version](https://img.shields.io/nuget/v/DualSenseAPI)
 
 A .NET standard API for interacting with DualSense controllers. Full docs and API reference are available at https://the-demp.github.io/DualSenseAPI/.
 
