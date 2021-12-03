@@ -1,0 +1,392 @@
+{
+  "homepages": [],
+  "source_base_path": "D:/a/DualSenseAPI/DualSenseAPI/DualSenseAPI/docs",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.BatteryStatus.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.BatteryStatus.html",
+          "hash": "9Fxn5WQl7oeC3maMt6yb4pb/kiNoxM7TwQC8iKZZeto="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.DualSense.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.DualSense.html",
+          "hash": "ug9DExfYN8vR5oZDkrNwTC1ZkdxWwzUCmk7GIqW5dr8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.IoMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.IoMode.html",
+          "hash": "3ohcp4YIAUFj1x8LAt0cexXpMNMIV5FU7rXxKZG2+Gk="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.LightbarBehavior.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.LightbarBehavior.html",
+          "hash": "TuEHIaka/7FO5XBDBAi/ErQ00uEshPyYxKxmoCN6Q+A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.LightbarColor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.LightbarColor.html",
+          "hash": "rC6kEd/sUD4wRrzkQqNgY5NGbx2JvwutOtlbunVCDZI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.MicLed.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.MicLed.html",
+          "hash": "6eCutIB0YPoC3DoIc2W78DoxArMaJ1JCLeSeMn2THSM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.PlayerLed.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.PlayerLed.html",
+          "hash": "vUAzacZPUfczoKD5Xx6fl/91MPfm9AQwA+ku++eQUXw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.PlayerLedBrightness.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.PlayerLedBrightness.html",
+          "hash": "44KWFv3XoezDEiVnqtqkC+GWIVDH+EEzlvSdMD2hSeA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.ButtonDeltaState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.ButtonDeltaState.html",
+          "hash": "DKt8ls1uH5F3dBkNJE9TXoV16x9ncAttS3Py9P2AgIA="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.ButtonStateChangedHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.ButtonStateChangedHandler.html",
+          "hash": "zRPndIDij3VKIddAIoBtT61JWihKWupFiPecz5D4Gq8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.DualSenseInputState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.DualSenseInputState.html",
+          "hash": "cIKr9Roa7PfTnPBP+S4fv9c7cmbjMHG41V7B1KEfF+A="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.DualSenseInputStateButtonDelta.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.DualSenseInputStateButtonDelta.html",
+          "hash": "9AGfo2SL0x0tI7iRypsBZRIbmBh1jZrzs02vdc/piQw="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.DualSenseOutputState.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.DualSenseOutputState.html",
+          "hash": "jwFEohSks/qUovedEfQuwbmv+87F0Qkc7dKpWA3PdFE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.StatePolledHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.StatePolledHandler.html",
+          "hash": "gl6u55wCR7P+kTVDQZNN4yMlnbA4WPZgNfEt8AbK5A8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.State.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.State.html",
+          "hash": "ljJ/hxUfuAgDgmJnc35XHTn19X7zqZ3tvDyITi4+ViE="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.Touch.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.Touch.html",
+          "hash": "9L95FErAiJJ+h6yVG8NezWu13yrshoDXg7YmvxnV60s="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.TriggerEffect.Continuous.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.TriggerEffect.Continuous.html",
+          "hash": "RaX+vQfHhMYFt8tp/Yn62N7u4LXq4/3iEX3wAH5PLp0="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.TriggerEffect.Section.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.TriggerEffect.Section.html",
+          "hash": "m7imtQrUxUmKR4STOqnHVdwwBOh69ZL0hZ0V4zUTUTQ="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.TriggerEffect.Vibrate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.TriggerEffect.Vibrate.html",
+          "hash": "c5SWf6RYa3RRzckf5vsjiTre9Sgs11cUcFcZQDtmhAY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.TriggerEffect.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.TriggerEffect.html",
+          "hash": "5zwhIPHomky5WqVAgJOf8DNx/AbrEY0qK6qrIE3pU90="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.Vec2.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.Vec2.html",
+          "hash": "CmF/2ZQ8aWWzjF1lWtwTEzx/Syyjd22zfTJVSTa8xYM="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.Vec3.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.Vec3.html",
+          "hash": "eaf5V4bUFVTV3fPFHTuBsB5l8LqZ7Lv7kxjHAN3rls8="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/DualSenseAPI.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/DualSenseAPI.html",
+          "hash": "ABZLlJVOHcfNqSo5qKmvoNDK9c5nHKmuRqrg9BwS7cI="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "api/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/toc.html",
+          "hash": "xA09r7GhMhZYI+XxYoTfOWJOMWF0mKIe/n2GFzZoZjY="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html",
+          "hash": "qOxuaoyZ9vaEpfKNpnHLK3AvbVAQN2W3Mbqhssw4bzo="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "articles/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "articles/toc.html",
+          "hash": "BlPxk5mtl2kgfcZUgkEguqiSAR/EUyUTT4EdebwkQvs="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "2p3RmBM6tYbQkSvSCfCZ694X1f/Y9gOrpKWmFq2In4M="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html",
+          "hash": "seRo7Z48zwcjSjre+p7hkePqMu4pn6W3QzqrgDM/l5Y="
+        }
+      },
+      "is_incremental": false,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot build incrementally because last build info is missing.",
+        "incrementalPhase": "build",
+        "total_file_count": 0,
+        "skipped_file_count": 0,
+        "full_build_reason_code": "NoAvailableBuildCache"
+      },
+      "processors": {
+        "ConceptualDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 2,
+          "skipped_file_count": 0
+        },
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": false,
+          "incrementalPhase": "build",
+          "total_file_count": 23,
+          "skipped_file_count": 0
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": false,
+        "details": "Cannot support incremental post processing, the reason is: last post processor info is null.",
+        "incrementalPhase": "postProcessing",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

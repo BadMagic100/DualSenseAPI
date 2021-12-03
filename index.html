@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+  
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>DualSenseAPI </title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="title" content="DualSenseAPI ">
+    <meta name="generator" content="docfx 2.58.9.0">
+    
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles/docfx.vendor.css">
+    <link rel="stylesheet" href="styles/docfx.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <meta property="docfx:navrel" content="toc.html">
+    <meta property="docfx:tocrel" content="toc.html">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+        
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              
+              <a class="navbar-brand" href="index.html">
+                <img id="logo" class="svg" src="logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+            </div>
+          </div>
+        </nav>
+        
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        <div class="article row grid">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="dualsenseapi">DualSenseAPI</h1>
+
+<p>This a .NET library for interfacing with the full feature set of a DualSense controller.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li><strong>Basic Input</strong>: Analog sticks and triggers, d-pad, and all buttons. Basically any input library
+you will use can offer this, including DirectInput or similar.</li>
+<li><strong>Advanced Input</strong>: Most of the rest of input features for the DualSense. This includes:
+<ul>
+<li>6-axis accelerometer (accelerometer and gyroscope)</li>
+<li>2-point multitouch</li>
+<li>Battery status</li>
+</ul>
+</li>
+<li><strong>Output</strong>: Most of the full suite of output features for the DualSense. This includes:
+<ul>
+<li>Haptic motors</li>
+<li>Adaptive triggers</li>
+<li>Lightbar color</li>
+</ul>
+</li>
+<li><strong>Flexiblility of Control</strong>: Supports both synchronous and asynchronous/event-driven IO.</li>
+</ul>
+<h2 id="example">Example</h2>
+<p>This simple example connects to a DualSense controller using asynchronous polling. The repo contains
+a more detailed sample and also shows the usage of synchronous polling as well. Check it out
+<a href="https://github.com/The-Demp/DualSenseAPI/blob/master/TestDriver/Program.cs#L53">here</a>!</p>
+<pre><code class="lang-csharp">static void Main(string[] args)
+{
+    DualSense ds = DualSense.EnumerateControllers().First();
+    ds.Acquire();
+    ds.JoystickDeadZone = 0.1f;
+    ds.BeginPolling(20, (sender) =&gt; {
+        DualSenseInputState dss = sender.InputState;
+        Console.WriteLine($&quot;LS: ({dss.LeftAnalogStick.X:F2}, {dss.LeftAnalogStick.Y:F2})&quot;);
+        Console.WriteLine($&quot;RS: ({dss.RightAnalogStick.X:F2}, {dss.RightAnalogStick.Y:F2})&quot;);
+        Console.WriteLine($&quot;Triggers: ({dss.L2:F2}, {dss.R2:F2})&quot;);
+        Console.WriteLine($&quot;Touch 1: ({dss.Touchpad1.X}, {dss.Touchpad1.Y}, {dss.Touchpad1.IsDown}, {dss.Touchpad1.Id})&quot;);
+        Console.WriteLine($&quot;Touch 2: ({dss.Touchpad2.X}, {dss.Touchpad2.Y}, {dss.Touchpad2.IsDown}, {dss.Touchpad2.Id})&quot;);
+        Console.WriteLine($&quot;Gyro: ({dss.Gyro.X}, {dss.Gyro.Y}, {dss.Gyro.Z})&quot;);
+        Console.WriteLine($&quot;Accel: ({dss.Accelerometer.X}, {dss.Accelerometer.Y}, {dss.Accelerometer.Z}); m={dss.Accelerometer.Magnitude()}&quot;);
+        Console.WriteLine($&quot;Headphone: {dss.IsHeadphoneConnected}&quot;);
+        Console.WriteLine($&quot;Battery: {dss.BatteryStatus.IsCharging}, {dss.BatteryStatus.IsFullyCharged}, {dss.BatteryStatus.Level}&quot;);
+    });
+    Console.ReadKey(true);
+    ds.EndPolling();
+    ds.Release();
+}
+</code></pre>
+</article>
+          </div>
+          
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                  <li>
+                    <a href="https://github.com/BadMagic100/DualSenseAPI/blob/master/DualSenseAPI/docs/index.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+            
+            <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script type="text/javascript" src="styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="styles/docfx.js"></script>
+    <script type="text/javascript" src="styles/main.js"></script>
+  </body>
+</html>
