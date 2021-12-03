@@ -1,9 +1,9 @@
 # DualSenseAPI
 
-![docs workflow status](https://github.com/The-Demp/DualSenseAPI/actions/workflows/github-pages.yml/badge.svg)
+![docs workflow status](https://github.com/BadMagic100/DualSenseAPI/actions/workflows/github-pages.yml/badge.svg)
 ![nuget version](https://img.shields.io/nuget/v/DualSenseAPI)
 
-A .NET standard API for interacting with DualSense controllers. Full docs and API reference are available at https://the-demp.github.io/DualSenseAPI/.
+A .NET standard API for interacting with DualSense controllers. Full docs and API reference are available at https://badmagic100.github.io/DualSenseAPI/.
 
 ## Features
 - **Basic Input**: Analog sticks and triggers, d-pad, and all buttons. Basically any input library
@@ -21,7 +21,7 @@ you will use can offer this, including DirectInput or similar.
 ## Example
 This simple example connects to a DualSense controller using asynchronous polling. The repo contains
 a more detailed sample and also shows the usage of synchronous polling as well. Check it out
-[here](https://github.com/The-Demp/DualSenseAPI/blob/master/TestDriver/Program.cs#L53)!
+[here](https://github.com/BadMagic100/DualSenseAPI/blob/master/TestDriver/Program.cs#L53)!
 
 ```csharp
 static void Main(string[] args)
